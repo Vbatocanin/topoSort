@@ -39,11 +39,11 @@ A graph is `directed` if every relation between 2 objects doesn't have to be bid
 
 In the graph below, the relation `C-A` is unidirectional, which means `C` has a relation with `A`, and `A` has a relation with `C`.
 
-![Simple graph](D:\StackAbuse\Toposort\graphics\Untitled-1.png)
+![](D:\StackAbuse\Toposort\topoSort\graphics\Untitled-1.png)
 
 On the other hand, in the following graph, the relation `C-A` is directed, which means  `A` has a relation with `C`, but `C` doesn't have a relation with `A`.
 
-![Simple graph 2](D:\StackAbuse\Toposort\graphics\Untitled-2.png)
+![](D:\StackAbuse\Toposort\topoSort\graphics\Untitled-2.png)
 
 Because of this, we have to strictly define the `neighbors` of a node.
 
@@ -59,7 +59,7 @@ Because of this, we have to strictly define the `neighbors` of a node.
 
 A given graph is acyclic only if a `cycle` does not exist. A cycle is a path for any node X, which starts at X and leads back to X. The following graph is **not** acyclic because it contains a cycle (`X-B-C-X`).
 
-![](D:\StackAbuse\Toposort\graphics\Untitled-3.png)
+![](D:\StackAbuse\Toposort\topoSort\graphics\Untitled-3.png)
 
 ### Basic Topological Sorting Concept
 
@@ -73,7 +73,7 @@ If we say that `actions` are represented by `nodes`. The above definition would 
 
 To better understand the logic behind topological sorting and why it can't work on a graph that contains a cycle, let's pretend we're a computer that's trying to topologically sort the following graph:
 
-![](D:\StackAbuse\Toposort\Untitled-1-[Recovered].png)
+![](D:\StackAbuse\Toposort\topoSort\Untitled-1-[Recovered].png)
 
 ```pseudocode
 # Let's say that we start our search at node X
@@ -97,3 +97,87 @@ step 4: WHAT IN THE TARNATION, X AGAIN?
 ```
 
 This is the reason why we can't topologically sort a graph that contains a cycle .
+
+Now because we're familiar with the algorithm's concepts, let's take a look at the implementation in java. First off, let's define classes for defining nodes and graphs, and then using said classes, define the following graph:
+
+![](D:\StackAbuse\Toposort\topoSort\graphics\Untitled-1-[Recovered].png)
+
+```java
+public class Graph {
+      private List<Node> nodes;
+
+      public Graph() {
+            this.nodes = new ArrayList<>();
+      }
+
+      public Graph(List<Node> nodes) {
+            this.nodes = nodes;
+      }
+
+      public void addNode(Node e) {
+            this.nodes.add(e);
+      }
+}
+public class Node {
+      private int id;
+      //this is a list of nodes which are adjacent to the current node
+      private List<Integer> neighbors;
+
+      public Node(int id) {
+            this.id = id;
+            this.neighbors = new ArrayList<>();
+      }
+      public void addNeighbor(int e){
+            this.neighbors.add(e);
+      }
+
+      public int getId() {
+            return id;
+      }
+
+      public List<Integer> getNeighbors() {
+            return neighbors;
+      }
+}
+
+public class GraphInit {
+      public static void main(String[] args) {
+            Graph g = new Graph();
+            Scanner sc = new Scanner(System.in);
+            Node node1 = new Node(1);
+            Node node2 = new Node(2);
+            Node node3 = new Node(3);
+            Node node4 = new Node(3);
+            node1.addNeighbor(2);
+            node2.addNeighbor(3);
+            node4.addNeighbor(3);
+            g.addNode(node1);
+            g.addNode(node2);
+            g.addNode(node3);
+            g.addNode(node4);
+            System.out.println(g);
+
+      }
+}
+```
+
+Output (using standard toString methods):
+
+```java
+Graph{nodes=[Node{id=1, neighbors=[2]}, Node{id=2, neighbors=[3]}, Node{id=3, neighbors=[]}, Node{id=3, neighbors=[3]}]}
+```
+
+
+
+Now let's implement the algorithm itself:
+
+```java
+public class GraphInit {
+      public static void main(String[] args) {
+			//graph initialization
+          	
+
+      }
+}
+```
+
