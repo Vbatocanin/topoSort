@@ -96,9 +96,14 @@ step 4: WHAT IN THE TARNATION, X AGAIN?
 	sequence: [X,B,C,X]
 ```
 
-This is the reason why we can't topologically sort a graph that contains a cycle .
+This is the reason why we can't topologically sort a graph that contains a cycle , because the following two statements are both true:
 
-Now because we're familiar with the algorithm's concepts, let's take a look at the implementation in java. First off, let's define classes for defining nodes and graphs, and then using said classes, define the following graph:
+- X comes before B
+- B comes before X
+
+And because of that, we can't determine an absolute order of the given actions.
+
+Now because we're familiar with the algorithm's concepts, let's take a look at the implementation in java. First off, let's construct classes for defining nodes and graphs, and then using said classes, define the following graph:
 
 ![](D:\StackAbuse\Toposort\topoSort\graphics\Untitled-1-[Recovered].png)
 
@@ -117,10 +122,34 @@ public class Graph {
       public void addNode(Node e) {
             this.nodes.add(e);
       }
+
+      @Override
+      public String toString() {
+            return "Graph{" +
+                    "nodes=" + nodes +
+                    '}';
+      }
+
+      public List<Node> getNodes() {
+            return nodes;
+      }
+      public Node getNode(int searchId) {
+            for (Node node:this.getNodes()) {
+                  if(node.getId()==searchId)
+                  {
+                        return node;
+                  }
+            }
+            return null;
+      }
+
+      public int getSize()
+      {
+            return this.nodes.size();
+      }
 }
 public class Node {
       private int id;
-      //this is a list of nodes which are adjacent to the current node
       private List<Integer> neighbors;
 
       public Node(int id) {
@@ -137,6 +166,14 @@ public class Node {
 
       public List<Integer> getNeighbors() {
             return neighbors;
+      }
+
+      @Override
+      public String toString() {
+            return "Node{" +
+                    "id=" + id +
+                    ", neighbors=" + neighbors +
+                    '}'+'\n';
       }
 }
 
@@ -161,7 +198,7 @@ public class GraphInit {
 }
 ```
 
-Output (using standard toString methods):
+Output:
 
 ```java
 Graph{nodes=[Node{id=1, neighbors=[2]}, Node{id=2, neighbors=[3]}, Node{id=3, neighbors=[]}, Node{id=3, neighbors=[3]}]}
@@ -172,12 +209,73 @@ Graph{nodes=[Node{id=1, neighbors=[2]}, Node{id=2, neighbors=[3]}, Node{id=3, ne
 Now let's implement the algorithm itself:
 
 ```java
-public class GraphInit {
-      public static void main(String[] args) {
-			//graph initialization
-          	
+private static void topoSort(Graph g) {
+
+            //fetching the number of nodes in the graph
+            int V = g.getSize();
+            //list where we'll be storing the topological order
+            List<Integer> order = new ArrayList<>();
+
+            // map which indicates if a node is visited (has been processed by the algorithm)
+            Map<Integer,Boolean> visited = new HashMap<>();
+            for (Node tmp: g.getNodes())
+                  visited.put(tmp.getId(),false);
+
+            // we go through the nodes using black magic
+            for (Node tmp: g.getNodes())
+                  if (!visited.get(tmp.getId()))
+                        blackMagic(g, tmp.getId(), visited, order);
+
+            // we reverse the order we constructed to get the
+            // proper toposorting
+            Collections.reverse(order);
+            System.out.println(order);
 
       }
-}
+private static void blackMagic(Graph g, int v, Map<Integer,Boolean> visited, List<Integer> order)
+      {
+            // mark the current node as visited
+            visited.replace(v,true);
+            Integer i;
+
+            // we reuse the algorithm on all adjacent nodes to the current node
+            for (Integer neighborId : g.getNode(v).getNeighbors()) {
+                  if (!visited.get(neighborId))
+                        blackMagic(g, neighborId, visited, order);
+            }
+
+            // put the current node in the array
+            order.add(v);
+      }
 ```
 
+If we call `topoSort(g)` for the graph initialized above, we get the following output:
+
+```
+[4, 1, 2, 3]
+```
+
+Which is exactly right.
+
+
+
+### Problem Modeling Using Topological Sorting
+
+In a real-world scenario, topological sorting can be utilized to write proper assembly instructions for Lego toys, cars and buildings.
+
+There's actually a type of topological sorting which is used daily (or hourly) by most developers, albeit implicitly. If you're thinking `Makefile` or just `Program dependencies`, you'd be absolutely correct.
+
+A typical Makefile looks like this:
+
+```makefile
+area_51_invasion.out: me.c, the_boys.c, Chads.c, Karen.c, the_manager.c
+	#instructions for assembly when one of the files in the dependency list is modified
+```
+
+With this line we define which files depend on other files, or rather, we are defining in which `topological order` *wink wink nudge nudge* the files should be inspected to see if a rebuild is needed. That is, if `area_51_invasion.out` depends on `the_boys.c` and  `the_boys.c` is for some reason modified, we need to rebuild `area_51_invasion.out` and everything that depends on that same file, that is everything that comes before it in the Makefile's topological order.
+
+
+
+### Conclusion
+
+Considering Toposort is basically something we do on a regular basis. You may have even implemented it in your software and didn't even know it. And if you haven't, I strongly suggest you give it a whirl.
